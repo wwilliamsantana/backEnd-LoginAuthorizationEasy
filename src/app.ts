@@ -68,6 +68,21 @@ appRouter.post("/register", (request, response) => {
 
 })
 
+appRouter.post("/validate", (request, response) => {
+    const {token} = request.body
+
+    const validateToken = users.find(user => user.token === token)
+
+    if(!validateToken){
+      return response.json(false)
+    }
+
+    return response.json({
+      ...validateToken.user
+    })
+})
+
+
 appRouter.delete("/logout", (request, response) => {
   const {token} = request.body
 
