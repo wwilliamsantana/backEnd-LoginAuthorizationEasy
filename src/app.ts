@@ -1,41 +1,70 @@
-import {Router} from "express"
+import {response, Router} from "express"
+import { v4 as uuidv4 } from 'uuid';
 
 const appRouter = Router()
 
-const users = [
-  {
-   user: {
-    id: 1,
-    name: "William",
-    email: "william@gmail.com",
-    password: "12345"
-   },
-   token: "202060"
+interface UserProps{
+  user:{
+    id: number
+    name: string
+    email: string
+    password: string
   },
+  token: string
+}
 
-]
+const users: UserProps[] = []
 
-function checkAccount(email: string, password: string){
-  const verifyUserEmail = users.find(item => item.user.email === email)
+
+function checkAccountExist(email: string, password: string){
+  const verifyUser = users.find(item => item.user.email === email)
   
-  if(verifyUserEmail){
-    return verifyUserEmail.user.password === password ? {message: true} : {message: "Email or password, incorrect!"}
+  if(verifyUser){
+    return verifyUser.user.password === password ? verifyUser : {message: "Email or password, incorrect!"}
   }
 
   return {message: "Email or password, incorrect!"}
 } 
 
+function checkEmailExist(email: string){
+  const findEmail = users.find(item => item.user.email === email)
+  return findEmail
+}
+
+
 
 appRouter.get("/", (request, response) => {
-  return response.json({message: "Hello World"})
+  return response.json(users)
 })
 
 appRouter.post("/signin", (request, response) => {
   const {email, password} = request.body
 
-  const verifyUser = checkAccount(email, password)
+  const verifyUser = checkAccountExist(email, password)
 
   return response.json(verifyUser)
+})
+
+appRouter.post("/register", (request, response) => {
+  const {email, name, password} = request.body
+
+  const verifyEmailExist = checkEmailExist(email)
+
+  if(verifyEmailExist){
+    return response.json({message: "Email already exists!"})
+  }
+
+  const newUser = {
+    user: {
+      id: users.length ,
+      name, 
+      email,
+      password,
+    },
+    token: uuidv4()
+  }
+  users.push(newUser)
+  return response.json(newUser)
 
 })
 
