@@ -13,7 +13,7 @@ interface UserProps{
   token: string
 }
 
-const users: UserProps[] = []
+let users: UserProps[] = []
 
 
 function checkAccountExist(email: string, password: string){
@@ -66,6 +66,14 @@ appRouter.post("/register", (request, response) => {
   users.push(newUser)
   return response.json(newUser)
 
+})
+
+appRouter.delete("/logout", (request, response) => {
+  const {token} = request.body
+
+  users = users.filter(item => item.token !== token)
+
+  return response.json({message: "Logout success"})
 })
 
 
